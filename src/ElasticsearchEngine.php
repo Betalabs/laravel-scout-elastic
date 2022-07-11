@@ -15,7 +15,7 @@ class ElasticsearchEngine extends Engine
      * @var string
      */
     protected $index;
-    
+
     /**
      * Elastic where the instance of Elastic|\Elasticsearch\Client is stored.
      *
@@ -262,5 +262,34 @@ class ElasticsearchEngine extends Engine
         return collect($builder->orders)->map(function($order) {
             return [$order['column'] => $order['direction']];
         })->toArray();
+    }
+
+    public function lazyMap(Builder $builder, $results, $model)
+    {
+        return Collection::make($results['hits']['hits'])->map(function ($hit) use ($model) {
+            return $model->newFromBuilder($hit['_source']);
+        });
+    }
+
+    public function createIndex($name, array $options = [])
+    {
+        $params = [
+            'index' => $name,
+        ];
+
+        if (isset($options['shards'])) {
+            $params['body']['settings']['number_of_shards'] = $options['shards'];
+        }
+
+        if (isset($options['replicas'])) {
+            $params['body']['settings']['number_of_replicas'] = $options['replicas'];
+        }
+
+        $this->elastic->indices()->create($params);
+    }
+
+    public function deleteIndex($name)
+    {
+        $this->elastic->indices()->delete(['index' => $name]);
     }
 }
