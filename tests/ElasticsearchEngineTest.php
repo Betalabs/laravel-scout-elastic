@@ -3,10 +3,11 @@
 use Illuminate\Database\Eloquent\Collection;
 use Laravel\Scout\Builder;
 use ScoutEngines\Elasticsearch\ElasticsearchEngine;
+use PHPUnit\Framework\TestCase;
 
-class ElasticsearchEngineTest extends PHPUnit_Framework_TestCase
+class ElasticsearchEngineTest extends TestCase
 {
-    public function tearDown()
+	protected function tearDown(): void
     {
         Mockery::close();
     }
@@ -83,27 +84,27 @@ class ElasticsearchEngineTest extends PHPUnit_Framework_TestCase
         $engine->search($builder);
     }
 
-    public function test_builder_callback_can_manipulate_search_parameters_to_elasticsearch()
-    {
-        /** @var \Elasticsearch\Client|\Mockery\MockInterface $client */
-        $client = Mockery::mock(\Elasticsearch\Client::class);
-        $client->shouldReceive('search')->with('modified_by_callback');
+	public function test_builder_callback_can_manipulate_search_parameters_to_elasticsearch()
+	{
+	    /** @var \Elasticsearch\Client|\Mockery\MockInterface $client */
+	    $client = Mockery::mock(\Elasticsearch\Client::class);
+	    $client->shouldReceive('search')->with(['modified_by_callback']);
 
-        $engine = new ElasticsearchEngine($client, 'scout');
-        $builder = new Laravel\Scout\Builder(
-            new ElasticsearchEngineTestModel(),
-            'huayra',
-            function (\Elasticsearch\Client $client, $query, $params) {
-                $this->assertNotEmpty($params);
-                $this->assertEquals('huayra', $query);
-                $params = 'modified_by_callback';
+	    $engine = new ElasticsearchEngine($client, 'scout');
+	    $builder = new Laravel\Scout\Builder(
+	        new ElasticsearchEngineTestModel(),
+	        'huayra',
+	        function (\Elasticsearch\Client $client, $query, $params) {
+	            $this->assertNotEmpty($params);
+	            $this->assertEquals('huayra', $query);
 
-                return $client->search($params);
-            }
-        );
+	            $params = ['modified_by_callback'];
+	            return $client->search($params);
+	        }
+	    );
 
-        $engine->search($builder);
-    }
+	    $engine->search($builder);
+	}
 
     public function test_map_correctly_maps_results_to_models()
     {
