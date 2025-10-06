@@ -6,6 +6,7 @@ use Laravel\Scout\Builder;
 use Laravel\Scout\Engines\Engine;
 use Elasticsearch\Client as Elastic;
 use Illuminate\Database\Eloquent\Collection;
+use App\Cache\Resolvers\Services\Search\EcommerceSearch\ElasticsearchNormalizedCache;
 
 class ElasticsearchEngine extends Engine
 {
@@ -47,6 +48,19 @@ class ElasticsearchEngine extends Engine
 
         $models->each(function($model) use (&$params)
         {
+        	$doc = $model->toSearchableArray();
+
+        	if($model instanceof \App\Models\VirtualEntityRecord){
+        		// Atenção, essa classe tem extrema dependencia da /app/Cache/Resolvers/Services/Search/EcommerceSearch/ElasticsearchNormalizedCache.php
+				// muito cuidado ao alterar, vai ter que alterar nos dois repositorios
+				// no da engine e o laravel-scout-elasticsearch
+		    	$elasticsearchNormalizedCache = resolve(ElasticsearchNormalizedCache::class);
+
+				if(!empty($elasticsearchNormalizedCache->resolve()['elasticsearchNormalizedEnable'])){
+        			ElasticsearchNormalizer::normalizeRecursiveTerm($doc);
+				}
+        	}
+
             $params['body'][] = [
                 'update' => [
                     '_id' => $model->getKey(),
@@ -55,7 +69,7 @@ class ElasticsearchEngine extends Engine
                 ]
             ];
             $params['body'][] = [
-                'doc' => $model->toSearchableArray(),
+                'doc' => $doc,
                 'doc_as_upsert' => true
             ];
         });
