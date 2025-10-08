@@ -74,6 +74,8 @@ class ElasticsearchEngine extends Engine
             ];
         });
 
+		\Log::info("Elasticsearch indexing data ", $params);
+
         $this->elastic->bulk($params);
     }
 
