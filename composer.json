@@ -3,7 +3,7 @@
     "description": "Elastic Driver for Laravel Scout",
     "keywords": ["laravel", "scout", "elasticsearch", "elastic"],
     "require": {
-        "php": "^8.0.2",
+        "php": "^8.0.1",
         "laravel/scout": "^8.0",
         "elasticsearch/elasticsearch": "^5.0|^6.0|^7.0"
     },
