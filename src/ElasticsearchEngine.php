@@ -57,6 +57,10 @@ class ElasticsearchEngine extends Engine
 		    	$elasticsearchNormalizedCache = resolve(ElasticsearchNormalizedCache::class);
 
 				if(!empty($elasticsearchNormalizedCache->resolve()['elasticsearchNormalizedEnable'])){
+        			if(!empty($doc['name'])){
+        				$doc['original_name'] = $doc['name'];
+        			}
+
         			ElasticsearchNormalizer::normalizeRecursiveTerm($doc);
 				}
         	}

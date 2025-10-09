@@ -30,7 +30,7 @@ class ElasticsearchNormalizer{
 
 	    	// debug1($debug);
 
-	    	if(in_array($index, ['created_at', 'updated_at'])){
+	    	if(in_array($index, ['created_at', 'updated_at', 'url', 'original_name'])){
 	    		$term = trim($term);
 
 	    		// debug1($array);
